@@ -28,7 +28,7 @@ class CsvUploadController extends Controller
             'csv_file' => 'required|mimes:csv,txt|max:2048',
         ]);
 
-        $path = $request->file('csv_file')->store('csv_uploads');
+        $path = $request->file('csv_file')->store('csv_uploads', 'local');
 
         $filename = $request->filename ?? $request->file('csv_file')->getClientOriginalName();
 
@@ -46,7 +46,7 @@ class CsvUploadController extends Controller
             return redirect()->route('csv-uploads.index')->with('error', 'No tienes permiso para eliminar este archivo.');
         }
 
-        Storage::delete($csvUpload->path);
+        Storage::disk('local')->delete($csvUpload->path);
         $csvUpload->delete();
 
         return redirect()->route('csv-uploads.index')->with('success', 'Archivo CSV eliminado correctamente.');
@@ -75,8 +75,8 @@ class CsvUploadController extends Controller
         $csvUpload->filename = $request->filename;
 
         if ($request->hasFile('csv_file')) {
-            Storage::delete($csvUpload->path);
-            $path = $request->file('csv_file')->store('csv_uploads');
+            Storage::disk('local')->delete($csvUpload->path);
+            $path = $request->file('csv_file')->store('csv_uploads', 'local');
             $csvUpload->path = $path;
         }
 
@@ -99,7 +99,7 @@ class CsvUploadController extends Controller
     private function parseCsv($path)
     {
         $csvData = [];
-        $file = fopen(storage_path('app/' . $path), 'r');
+        $file = fopen(storage_path('app/private/' . $path), 'r');
         $headers = fgetcsv($file);
 
         while (($row = fgetcsv($file)) !== false) {
