@@ -4,24 +4,23 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class CreateQueriesTable extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
         Schema::create('queries', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('csv_upload_id');
+            $table->text('query');
+            $table->text('response')->nullable();
             $table->timestamps();
+
+            $table->foreign('csv_upload_id')->references('id')->on('csv_uploads')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('queries');
     }
-};
+}
